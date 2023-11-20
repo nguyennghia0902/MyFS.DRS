@@ -65,7 +65,7 @@ def page(mainframe: tk.Frame):
     )
     open_vol_button = tk.Button(
         user_page_content_frame_left,
-        text='Mở/liệt kê volume',
+        text='Mở/liệt kê các file trong volume',
         width=25
     )
     
@@ -125,7 +125,7 @@ def page(mainframe: tk.Frame):
         )
         addr = tk.StringVar(address_frame)
         def get_address():
-            get_address = filedialog.askdirectory()(
+            get_address = filedialog.askdirectory(
                 title='Chọn vị trí',
                 initialdir=user_dir
             )
@@ -228,7 +228,7 @@ def page(mainframe: tk.Frame):
         )
         volume = tk.StringVar(volume_frame)
         def get_volume():
-            get_volume = filedialog.askopenfilename()(
+            get_volume = filedialog.askopenfilename(
                 title='Chọn volume',
                 initialdir=user_dir
             )
@@ -312,7 +312,7 @@ def page(mainframe: tk.Frame):
         )
         volume = tk.StringVar(volume_frame)
         def get_volume():
-            get_volume = filedialog.askopenfilename()(
+            get_volume = filedialog.askopenfilename(
                 title='Chọn volume',
                 initialdir=user_dir
             )
@@ -412,7 +412,7 @@ def page(mainframe: tk.Frame):
         )
         volume = tk.StringVar(volume_frame)
         def get_volume():
-            get_volume = filedialog.askopenfilename()(
+            get_volume = filedialog.askopenfilename(
                 title='Chọn volume',
                 initialdir=user_dir
             )
