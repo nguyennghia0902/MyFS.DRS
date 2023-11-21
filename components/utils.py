@@ -1,14 +1,11 @@
-import os, json, re
+import os
 import tkinter as tk
-from tkinter import messagebox, filedialog
-#pip install pycryptodome
-from Crypto.PublicKey import RSA
-from Crypto.Cipher import AES, PKCS1_OAEP
-from Crypto.Util.Padding import pad, unpad
+from tkinter import messagebox
+from Crypto.Cipher import AES
 import hashlib, random, string
 
 
-#salt_len = 16
+salt_len = 8
 def hash_password(password, salt_len):
     salt = os.urandom(salt_len)
     hashed_password = hashlib.sha256(password.encode()).digest() + salt
@@ -39,106 +36,170 @@ def read_size_bs_bytes(size, data):
         yield chunk
 
 def create_vol(address, name, size):
+    file_path = address + "/" + name
+    size_bytes = size * 1024 * 1024 
+    with open(file_path, 'wb') as fileVol:
+        fileVol.seek(0)
+        address_in_byte = bytes(address, 'utf-8')
+        fileVol.write(address_in_byte)
+
+        fileVol.seek(8)
+        size_in_byte = size_bytes.to_bytes(4, byteorder='big')
+        fileVol.write(size_in_byte)
+
+        fileVol.seek(12)
+        name_in_byte = bytes(name, 'utf-8')
+        fileVol.write(name_in_byte)
+
+        fileVol.write(b'\0' * (int(size_bytes)-20))
+
     return True  
+
 def format_vol(vol, name):
-    return True  
-def setpass_vol(vol, pw):
-    return True   
-def open_vol(vol, pw):
-    return True   
-
-
-def _encrypt_file(file_in, password): 
-    file = open(file_in, 'rb')
-    data = file.read()
-    file.close()
-
-    name = str(file_in)
-    name += ".enc"
-    os.rename(file_in, name)
-
-    file = open(name, 'wb')
-    salt_len = random.randint(0, 500000)
-    bs = AES.block_size 
-    pass_hashed = hash_password(password, salt_len)
-    print("Mật khẩu file sau khi hash:", pass_hashed)
-    print("Kích thước mật khẩu file sau khi hash:", len(pass_hashed))
-    Ksession = get_digest(pass_hashed, salt_len)  #os.urandom(bs)
-    cipher = AES.new(Ksession, AES.MODE_CBC)
-    finished = False
-    
-    file.write(cipher.iv)
-    file.write(bytes(str(salt_len), 'utf-8'))
-    file.write(bytes(random.choice(string.ascii_lowercase), 'utf-8'))
-    file.write(bytes(pass_hashed, 'utf-8'))
-
-    while not finished:
-        for chunk in read_size_bs_bytes(1024, data):
-            if len(chunk) == 0 or len(chunk) % bs != 0:   
-                padding_length = (bs - len(chunk) % bs) or bs
-                chunk += str.encode(padding_length * chr(padding_length))
-                finished = True
-            file.write(cipher.encrypt(chunk))   
-        pass         
-    file.close()
-    print("Kích thước của file sau khi mã hóa: ",os.path.getsize(name))
-    return True
-    
-def _decrypt_file(file_in, passinput):  
-    file = open(file_in, 'rb')
-    file_name = file_in.split('/')[-1]
-    name = file_name
-    addr = file_in.split('/')[:-1]
-    file_out = '/'.join(addr)
-    if '.' in file_name:
-        full = file_name.split('.')
-        name = full[0]
-        exte = full[-1]
-    if exte == "enc":    
-        filename = str(file_in)
-        filename = filename[:-4]
-        print(filename)
-        bs = AES.block_size 
-        iv = file.read(bs)
-
-        next_char = file.read(1)
-        salt_len = str('')
-        #print('random_char = ' + next_char.decode())
-        #print('salt_test = ' + salt_len)
-        while(next_char.decode() not in string.ascii_lowercase):
-            salt_len = salt_len + next_char.decode()
-            next_char = file.read(1)
+    with open(vol, 'rb') as fileVol:
+        default_data = fileVol.read()
+        fileVol.seek(8)
+        size = int.from_bytes(fileVol.read(4),byteorder='big')
+        idbackup = int(size*2.5/4)
+        fileVol.seek(idbackup)
+        backup_content = fileVol.read()
+    with open(vol, 'wb') as fileVol:
+        fileVol.seek(0)
+        fileVol.write(default_data) 
         
-        check = hash_password(passinput, int(salt_len))
-        passhase = file.read(len(check))
-        data = file.read()
-        file.close()
-        os.rename(file_in, filename)
-    else:
-        messagebox.showerror(title='LỖI', message='Không phải file mã hóa!\nVui lòng chọn lại!')
-        return False
-    file = open(filename, 'wb+')
-    pass_hashed = passhase[:len(check)].decode()
-    if validate_password(passinput, pass_hashed,int(salt_len)):
-      key = get_digest(pass_hashed,int(salt_len))
-      cipher = AES.new(key, AES.MODE_CBC, iv)
-      next_chunk = ''
-      finished = False
-      offset = 0
-      chunk_size = 1024 * bs
-      while not finished:
-          chunk, next_chunk = next_chunk, cipher.decrypt(data[offset:offset + chunk_size])
-          offset += chunk_size
-          if len(next_chunk) == 0:
-            padding_length = chunk[-1]
-            chunk = chunk[: - padding_length]  # type: ignore
-            finished = True 
-          file.write(bytes(x for x in chunk))   # type: ignore
-      return True
-    messagebox.showerror(title='LỖI', message='Sai  Mật khẩu!\nVui lòng nhập lại!')
-    file.close()
-    return False                 
+        fileVol.seek(12)
+        name_in_byte = bytes(name, 'utf-8')
+        fileVol.write(name_in_byte)
+
+        fileVol.write(b'\0' * (size-20))
+
+        fileVol.seek(idbackup)
+        fileVol.write(backup_content)
+    
+    filename = str(vol)
+    elements = filename.split('/')
+    addr = '/'.join(elements[:-1])
+
+    name = addr + '/' + name
+
+    os.rename(filename, name)
+    return True  
+
+def setpass_vol(vol, oldpw, newpw):
+    check = hash_password(oldpw, int(salt_len))
+    isPass = 0
+    with open(vol, 'rb') as fileVol:
+        default_data = fileVol.read()
+        fileVol.seek(20)
+        isPass = fileVol.read(1)
+        fileVol.seek(21)
+        passhase = fileVol.read(len(check))
+        pass_hashed = passhase[:len(check)].decode()
+    
+    with open(vol, 'wb') as fileVol:
+        if (isPass != b'\x00'):
+            if validate_password(oldpw, pass_hashed, int(salt_len)):
+                fileVol.seek(0)
+                fileVol.write(default_data)
+                newpw_in_byte = bytes(hash_password(newpw, salt_len),'utf-8')
+                fileVol.seek(21)
+                fileVol.write(newpw_in_byte)
+            else: 
+                fileVol.seek(0)
+                fileVol.write(default_data)
+                messagebox.showerror(title='LỖI', message='Mật khẩu cũ volume không đúng!')
+                return False
+        else:
+            fileVol.seek(0)
+            fileVol.write(default_data)
+            fileVol.seek(20)
+            c = 1
+            fileVol.write(c.to_bytes(c, byteorder='big'))
+            newpw_in_byte = bytes(hash_password(newpw, salt_len),'utf-8')
+            fileVol.seek(21)
+            fileVol.write(newpw_in_byte)
+    
+    return True   
+
+def open_vol(vol, pw):
+    listfile = []
+    with open(vol, 'rb') as fileVol:
+        fileVol.seek(101)
+        n = 0
+        n = int.from_bytes(fileVol.read(1),byteorder='big')
+        print('Số lượng file: ',n)
+        for i in range(n):
+            file = []
+            filename = fileVol.read(8)
+            filename = filename.decode('utf-8').replace('\x00','')
+            file.append(filename)
+
+            fileex = fileVol.read(3)
+            file.append(fileex.decode('utf-8'))
+
+            filesize = int.from_bytes(fileVol.read(4),byteorder='big')
+            file.append(filesize)
+            idfile = int.from_bytes(fileVol.read(4),byteorder='big')
+            file.append(idfile)
+            print(file)
+            listfile.append(file) 
+
+    return listfile   
+
+def import_file_in(vol, pw, file):
+    with open(file, 'rb') as f:
+        name = str(file).split('/')
+        name = name[-1]
+        content = f.read()
+        size =  f.tell()
+    list = open_vol(vol, "")
+    with open(vol, 'rb') as fileVol:
+        fileVol.seek(0)
+        default_data = fileVol.read() 
+        fileVol.seek(8)
+        volsize = int.from_bytes(fileVol.read(4),byteorder='big')
+    if len(list) != 0:
+        last = list[-1]
+        sizelast = last[2]
+        idlast = last[3]
+    else:     
+        sizelast = 0
+        idlast = int(volsize*0.5/4)
+    
+    with open(vol, 'wb') as fileVol:
+        fileVol.seek(0)
+        fileVol.write(default_data) 
+    
+        fileVol.seek(101)
+        n = len(list)+1
+        fileVol.write(n.to_bytes(1, byteorder='big'))
+        
+        arr = name.split('.')
+        bname = '.'.join(arr[:-1])
+        aname = arr[-1]
+        fileVol.seek(102+19*len(list))
+        name_in_byte = bytes(bname, 'utf-8')
+        fileVol.write(name_in_byte)
+        fileVol.seek(110+19*len(list))
+        name_in_byte = bytes(aname, 'utf-8')
+        fileVol.write(name_in_byte)
+
+        fileVol.seek(113+19*len(list))
+        size_in_byte = size.to_bytes(4, byteorder='big')
+        fileVol.write(size_in_byte)
+
+        id = idlast + (81+sizelast)*len(list)
+        fileVol.seek(117+19*len(list))
+        id_in_byte = id.to_bytes(4, byteorder='big')
+        fileVol.write(id_in_byte)
+        
+        fileVol.seek(id+81)
+        fileVol.write(content)
+        
+    return True
+
+
+def export_file_out(vol, name, des):
     
 
-encrypt_file = _encrypt_file
-decrypt_file = _decrypt_file
+    return True

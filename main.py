@@ -1,8 +1,4 @@
 import tkinter as tk
-from tkinter import messagebox, filedialog
-from tkcalendar import DateEntry
-import os, json
-from datetime import datetime
 from components.login import *
 
 
@@ -26,6 +22,8 @@ def main():
     ###
 
     mainframe = tk.Frame(root, name='mainframe', width=window_width, height=window_height)
+
+
 
     ### MAIN ###
 
