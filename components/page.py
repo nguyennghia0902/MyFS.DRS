@@ -7,6 +7,13 @@ from components.utils import *
 window_height = 400
 window_width = 600
 
+last_clicked = None
+def change_color(button):
+        global last_clicked
+        if last_clicked:
+            last_clicked.config(bg="red")
+        button.config(bg="blue")
+        last_clicked = button
 
 def page(mainframe: tk.Frame):
 
@@ -29,7 +36,6 @@ def page(mainframe: tk.Frame):
         highlightbackground='black'
     )
     
-    
     user_page_header_frame.pack(fill='both')
     
     # Menu panel
@@ -47,47 +53,56 @@ def page(mainframe: tk.Frame):
     create_vol_button = tk.Button(
         user_page_content_frame_left,
         text='Tạo volume',
-        width=25
+        width=25, bg='#ffffff', activebackground='#00ff00',
+        command=lambda: change_color(create_vol_button)
     )
     format_vol_button = tk.Button(
         user_page_content_frame_left,
         text='Định dạng volume',
-        width=25
+        width=25, bg='#ffffff', activebackground='#00ff00',
+        command=lambda: change_color(format_vol_button)
     )
     pass_vol_button = tk.Button(
         user_page_content_frame_left,
         text='Đặt/đổi mật khẩu volume',
-        width=25
+        width=25, bg='#ffffff', activebackground='#00ff00',
+        command=lambda: change_color(pass_vol_button)
     )
     open_vol_button = tk.Button(
         user_page_content_frame_left,
         text='Mở/liệt kê các file trong volume',
-        width=25
+        width=25, bg='#ffffff', activebackground='#00ff00',
+        command=lambda: change_color(open_vol_button)
     )
     import_button = tk.Button(
         user_page_content_frame_left,
         text='Chép file vào volume',
-        width=25
+        width=25, bg='#ffffff', activebackground='#00ff00',
+        command=lambda: change_color(import_button)
     )
     export_button = tk.Button(
         user_page_content_frame_left,
         text='Chép file ra ngoài',
-        width=25
+        width=25, bg='#ffffff', activebackground='#00ff00',
+        command=lambda: change_color(export_button)
     )
     passfile_button = tk.Button(
         user_page_content_frame_left,
         text='Đặt/đổi mật khẩu file',
-        width=25
+        width=25, bg='#ffffff', activebackground='#00ff00',
+        command=lambda: change_color(passfile_button)
     )
     delefile_button = tk.Button(
         user_page_content_frame_left,
         text='Xóa file trong volume',
-        width=25
+        width=25, bg='#ffffff', activebackground='#00ff00',
+        command=lambda: change_color(delefile_button)
     )
     about_button = tk.Button(
         user_page_content_frame_left,
-        text='About app',
-        width=25
+        text='Thông tin đồ án',
+        width=25, bg='#ffffff', activebackground='#00ff00',
+        command=lambda: change_color(about_button)
     )
     
     user_page_content_frame_left.pack(fill='both',side = 'left', padx=20, pady=10)
@@ -117,8 +132,8 @@ def page(mainframe: tk.Frame):
     user_page_content_frame_right.grid_propagate(False)
     user_page_content_frame_right.pack_propagate(False)
     
+    
     def create_volume():
-
         user_dir = 'data/' 
 
         forget_old_widgets(user_page_content_frame_right)
@@ -234,6 +249,14 @@ def page(mainframe: tk.Frame):
             height=290
         )
 
+        user_frame = tk.Frame(
+                user_page_content_frame_right,
+                name='user_pick_frame',
+                bg='white',
+                width=190,
+                height=290
+            )
+
         volume_frame.pack(side='left', fill='both')
         volume_frame.grid_propagate(False)
 
@@ -248,6 +271,7 @@ def page(mainframe: tk.Frame):
             bg='white'
         )
         volume = tk.StringVar(volume_frame)
+        
         def get_volume():
             get_volume = filedialog.askopenfilename(
                 title='Chọn volume',
@@ -263,48 +287,83 @@ def page(mainframe: tk.Frame):
             anchor='w'
         )
 
+        pass_label = tk.Label(
+            volume_frame,
+            text='Nhập mật khẩu:',
+            font=('Verdana',8)
+        )
+        pass_entry = tk.Entry(
+            volume_frame,
+            width=10,
+            font=('Verdana',8), show='*'
+        )
+        checkpass_button = tk.Button(
+            volume_frame,
+            text='Kiểm tra',
+            anchor='w'
+        )
+        
         volume_choose_label.grid(row=0, column=0, pady=5, sticky='w')
         file_choose_button.grid(row=1, column=0, pady=5, sticky='w')
         volume_display.grid(row=2, column=0, columnspan=1, pady=5, sticky='w')
+        pass_label.grid(row=3, column=0, pady=5, sticky='w')
+        pass_entry.grid(row=4, column=0, pady=5, sticky='w')
+        checkpass_button.grid(row=5, column=0, pady=5, sticky='w')
+        
+        def showright():
+            user_frame.pack(side='left')
+            user_frame.grid_propagate(False)
 
-        user_frame = tk.Frame(
-            user_page_content_frame_right,
-            name='user_pick_frame',
-            bg='white',
-            width=190,
-            height=290
-        )
+            setname_label = tk.Label(
+                user_frame,
+                text='Đặt tên:',
+                font=('Verdana',8)
+            )
+            setname_entry = tk.Entry(
+                user_frame,
+                width=25,
+                font=('Verdana',8)
+            )
 
-        user_frame.pack(side='left')
-        user_frame.grid_propagate(False)
-
-        setname_label = tk.Label(
-            user_frame,
-            text='Đặt tên:',
-            font=('Verdana',8)
-        )
-        setname_entry = tk.Entry(
-            user_frame,
-            width=25,
-            font=('Verdana',8)
-        )
-
-        def submit():
-            name = setname_entry.get().strip()
-            if format_vol(volume.get(), name):
-                messagebox.showinfo(title='CHÚC MỪNG', message='Định dạng volume thành công')
-            else: messagebox.showerror(title='LỖI', message='Định dạng volume không thành công')
-        submit_button = tk.Button(
-            user_frame,
-            text='Xác nhận',
-            width=10,
-            command=submit
-        )
-
-        setname_label.grid(row=0, column=0, pady=5)
-        setname_entry.grid(row=1, column=0, pady=5)
-        submit_button.grid(row=5,column=0, pady=5)
- 
+            def submit():
+                name = setname_entry.get().strip()
+                if format_vol(volume.get(), name):
+                    messagebox.showinfo(title='CHÚC MỪNG', message='Định dạng volume thành công')
+                else: messagebox.showerror(title='LỖI', message='Định dạng volume không thành công')
+            submit_button = tk.Button(
+                user_frame,
+                text='Xác nhận',
+                width=10,
+                command=submit
+            )
+            setname_label.grid(row=0, column=0, pady=5)
+            setname_entry.grid(row=1, column=0, pady=5)
+            submit_button.grid(row=5,column=0, pady=5) 
+        
+        def check():
+            pw = pass_entry.get().strip()
+            vol = volume.get()
+            check = hash_password(pw, int(salt_len))
+            isPass = b'\x00'
+            with open(vol, 'rb') as fileVol:
+                default_data = fileVol.read()
+                fileVol.seek(20)
+                isPass = fileVol.read(1)
+                fileVol.seek(21)
+                passhase = fileVol.read(len(check))
+                pass_hashed = passhase[:len(check)].decode()
+            if (isPass != b'\x00'):
+                if validate_password(pw, pass_hashed, int(salt_len)):    
+                    showright()
+                    checkpass_button.grid_remove()
+                else: messagebox.showerror(title='LỖI', message='Mật khẩu sai!')
+            else:
+                showright()
+                checkpass_button.grid_remove()
+                pass_label.grid_remove()
+                pass_entry.grid_remove()
+        checkpass_button['command'] = check
+        
     def pass_volume():
         user_dir = 'data/' 
 
@@ -475,28 +534,37 @@ def page(mainframe: tk.Frame):
         namefiles = []
         def submit():
             pw = pass_entry.get().strip()
-            listfile =  open_vol(volume.get(), pw)
-            for i in listfile:
-                full = i[0] + '.' + i[1]
-                namefiles.append(full)
-            var = tk.Variable(value=namefiles)
-
-            listbox = tk.Listbox(
-                user_frame,
-                listvariable=var,
-                height=6,
-                selectmode=tk.EXTENDED
-            )
-            listbox.pack(expand=True, fill=tk.BOTH)
-            
+            vol = volume.get()
+            check = hash_password(pw, int(salt_len))
+            isPass = b'\x00'
+            with open(vol, 'rb') as fileVol:
+                fileVol.seek(20)
+                isPass = fileVol.read(1)
+                fileVol.seek(21)
+                passhase = fileVol.read(len(check))
+                pass_hashed = passhase[:len(check)].decode()
+            if ((isPass != b'\x00' and validate_password(pw, pass_hashed, int(salt_len))) or isPass == b'\x00'):   
+                    listfile = open_vol(volume.get())
+                    for i in listfile:
+                        full = i[0] + '.' + i[1]
+                        namefiles.append(full)
+                    var = tk.Variable(value=namefiles)
+                    listbox = tk.Listbox(
+                        user_frame,
+                        listvariable=var,
+                        height=6,
+                        selectmode=tk.EXTENDED
+                    )
+                    listbox.pack(expand=True, fill=tk.BOTH)
+            if (isPass != b'\x00' and validate_password(pw, pass_hashed, int(salt_len)) == False):
+                messagebox.showerror(title='LỖI', message='Mật khẩu sai!')
+        
         submit_button = tk.Button(
             user_frame,
             text='Danh sách các file',
             width=20,
             command=submit
         )
-
-          
 
         pass_label.grid(row=0, column=0, pady=5)
         pass_entry.grid(row=1, column=0, pady=5)
@@ -536,7 +604,6 @@ def page(mainframe: tk.Frame):
             )
             volume.set(get_volume)
             volume_display['textvariable']=volume
-
         
         volume_choose_button = tk.Button(
             volume_frame,
@@ -545,67 +612,102 @@ def page(mainframe: tk.Frame):
             anchor='w'
         )
 
-        file_choose_label = tk.Label(
+        pass_label = tk.Label(
             volume_frame,
-            text='Chọn file: ',
-            font=('Verdana',8),
+            text='Nhập mật khẩu:',
+            font=('Verdana',8)
         )
-        file_display = tk.Label(
+        pass_entry = tk.Entry(
             volume_frame,
-            wraplength=150,
-            bg='white'
+            width=10,
+            font=('Verdana',8), show='*'
         )
-        file = tk.StringVar(volume_frame)
-        def get_file():
-            get_file = filedialog.askopenfilename(
-                title='Chọn file',
-                initialdir=user_dir
-            )
-            file.set(get_file)
-            file_display['textvariable']=file
-
-        file_choose_button = tk.Button(
+        checkpass_button = tk.Button(
             volume_frame,
-            text='Chọn file',
-            command=get_file,
+            text='Kiểm tra',
             anchor='w'
         )
-        
 
         volume_choose_label.grid(row=0, column=0, pady=5, sticky='w')
         volume_choose_button.grid(row=1, column=0, pady=5, sticky='w')
         volume_display.grid(row=2, column=0, columnspan=1, pady=5, sticky='w')
-        file_choose_label.grid(row=3, column=0, pady=5, sticky='w')
-        file_choose_button.grid(row=4, column=0, pady=5, sticky='w')
-        file_display.grid(row=5, column=0, columnspan=1, pady=5, sticky='w')
-
-        user_frame = tk.Frame(
-            user_page_content_frame_right,
-            name='user_pick_frame',
-            bg='white',
-            width=190,
-            height=290
-        )
-
-        user_frame.pack(side='left')
-        user_frame.grid_propagate(False)
-
+        pass_label.grid(row=3, column=0, pady=5, sticky='w')
+        pass_entry.grid(row=4, column=0, pady=5, sticky='w')
+        checkpass_button.grid(row=5, column=0, pady=5, sticky='w')
         
-        def submit():
-            pw = ""
-            addfile = file.get()
-            if import_file_in(volume.get(), pw, addfile):
-                messagebox.showinfo(title='CHÚC MỪNG', message='Chép file vào thành công')
-            else: messagebox.showerror(title='LỖI', message='Chép file vào không thành công')
-        submit_button = tk.Button(
-            user_frame,
-            text='Chép',
-            width=10,
-            command=submit
-        )
+        def showright():
+            user_frame = tk.Frame(
+                user_page_content_frame_right,
+                name='user_pick_frame',
+                bg='white',
+                width=190,
+                height=290
+            )
+            user_frame.pack(side='left')
+            user_frame.grid_propagate(False)
+            file_choose_label = tk.Label(
+                user_frame,
+                text='Chọn file: ',
+                font=('Verdana',8),
+            )
+            file_display = tk.Label(
+                user_frame,
+                wraplength=150,
+                bg='white'
+            )
+            file = tk.StringVar(volume_frame)
+            def get_file():
+                get_file = filedialog.askopenfilename(
+                    title='Chọn file',
+                    initialdir=user_dir
+                )
+                file.set(get_file)
+                file_display['textvariable']=file
 
-        
-        submit_button.grid(row=5,column=0, pady=5)
+            file_choose_button = tk.Button(
+                user_frame,
+                text='Chọn file',
+                command=get_file,
+                anchor='w'
+            )
+            file_choose_label.grid(row=5, column=0, pady=5, sticky='w')
+            file_choose_button.grid(row=6, column=0, pady=5, sticky='w')
+            file_display.grid(row=7, column=0, columnspan=1, pady=5, sticky='w')
+            def submit():
+                pw = ""
+                addfile = file.get()
+                if import_file_in(volume.get(), addfile):
+                    messagebox.showinfo(title='CHÚC MỪNG', message='Chép file vào thành công')
+                else: messagebox.showerror(title='LỖI', message='Chép file vào không thành công')
+            submit_button = tk.Button(
+                    user_frame,
+                    text='Chép',
+                    width=10,
+                    command=submit
+                )
+            submit_button.grid(row=8,column=0, pady=5)
+
+        def check():
+                pw = pass_entry.get().strip()
+                vol = volume.get()
+                check = hash_password(pw, int(salt_len))
+                isPass = b'\x00'
+                with open(vol, 'rb') as fileVol:
+                    fileVol.seek(20)
+                    isPass = fileVol.read(1)
+                    fileVol.seek(21)
+                    passhase = fileVol.read(len(check))
+                    pass_hashed = passhase[:len(check)].decode()
+                
+                if ((isPass != b'\x00' and validate_password(pw, pass_hashed, int(salt_len))) or isPass == b'\x00'):   
+                    showright()
+                    checkpass_button.grid_remove()
+                    pass_label.grid_remove()
+                    pass_entry.grid_remove()
+                if (isPass != b'\x00' and validate_password(pw, pass_hashed, int(salt_len)) == False):
+                    messagebox.showerror(title='LỖI', message='Mật khẩu sai!')
+                
+        checkpass_button['command'] = check
 
     def export_file():
         user_dir = 'data/' 
@@ -619,7 +721,13 @@ def page(mainframe: tk.Frame):
             width=170,
             height=290
         )
-
+        user_frame = tk.Frame(
+                user_page_content_frame_right,
+                name='user_pick_frame',
+                bg='white',
+                width=190,
+                height=290
+            )
         volume_frame.pack(side='left', fill='both')
         volume_frame.grid_propagate(False)
 
@@ -649,101 +757,126 @@ def page(mainframe: tk.Frame):
             anchor='w'
         )
 
-        destination_choose_label = tk.Label(
+        pass_label = tk.Label(
             volume_frame,
-            text='Chọn thư mục: ',
-            font=('Verdana',8),
+            text='Nhập mật khẩu:',
+            font=('Verdana',8)
         )
-        destination_display = tk.Label(
+        pass_entry = tk.Entry(
             volume_frame,
-            wraplength=150,
-            bg='white'
+            width=10,
+            font=('Verdana',8), show='*'
         )
-        destination = tk.StringVar(volume_frame)
-        def get_destination():
-            get_destination = filedialog.askdirectory(
-                title='Chọn đích đến',
-                initialdir=user_dir
+        find_file_button = tk.Button(
+                volume_frame,
+                text='Danh sách các file',
+                width=20
             )
-            destination.set(get_destination)
-            destination_display['textvariable']=destination
-
-        destination_choose_button = tk.Button(
-            volume_frame,
-            text='Chọn đích đến',
-            command=get_destination,
-            anchor='w'
-        )
 
         volume_choose_label.grid(row=0, column=0, pady=5, sticky='w')
         volume_choose_button.grid(row=1, column=0, pady=5, sticky='w')
         volume_display.grid(row=2, column=0, columnspan=1, pady=5, sticky='w')
-        destination_choose_label.grid(row=3, column=0, pady=5, sticky='w')
-        destination_choose_button.grid(row=4, column=0, pady=5, sticky='w')
-        destination_display.grid(row=5, column=0, columnspan=1, pady=5, sticky='w')
+        pass_label.grid(row=3, column=0, pady=5, sticky='w')
+        pass_entry.grid(row=4, column=0, pady=5, sticky='w')
+        find_file_button.grid(row=5,column=0, pady=5)
+        
+        def showright():
+            user_frame.pack(side='left')
+            user_frame.grid_propagate(False)
+            
+            type_label = tk.Label(
+                user_frame,
+                text='Nhập tên file cần chép:',
+                font=('Verdana',8)
+            )
+            type_entry = tk.Entry(
+                user_frame,
+                width=25,
+                font=('Verdana',8)
+            )
 
-        user_frame = tk.Frame(
-            user_page_content_frame_right,
-            name='user_pick_frame',
-            bg='white',
-            width=190,
-            height=290
-        )
+            destination_choose_label = tk.Label(
+                user_frame,
+                text='Chọn thư mục: ',
+                font=('Verdana',8),
+            )
+            destination_display = tk.Label(
+                user_frame,
+                wraplength=150,
+                bg='white'
+            )
+            destination = tk.StringVar(volume_frame)
+            def get_destination():
+                get_destination = filedialog.askdirectory(
+                    title='Chọn đích đến',
+                    initialdir=user_dir
+                )
+                destination.set(get_destination)
+                destination_display['textvariable']=destination
 
-        user_frame.pack(side='left')
-        user_frame.grid_propagate(False)
+            destination_choose_button = tk.Button(
+                user_frame,
+                text='Chọn đích đến',
+                command=get_destination,
+                anchor='w'
+            )
+            type_label.grid(row=0,column=0, pady=5)
+            type_entry.grid(row=1,column=0, pady=5)
+            destination_choose_label.grid(row=2, column=0, pady=5, sticky='w')
+            destination_choose_button.grid(row=3, column=0, pady=5, sticky='w')
+            destination_display.grid(row=4, column=0, columnspan=1, pady=5, sticky='w')
+            
+
+            def submit():
+                name = type_entry.get().strip()
+                if export_file_out(volume.get(), name, destination.get()):
+                    messagebox.showinfo(title='CHÚC MỪNG', message='Chép file ra ngoài thành công')
+                else: messagebox.showerror(title='LỖI', message='Chép file ra ngoài không thành công')
+            submit_button = tk.Button(
+                user_frame,
+                text='Chép',
+                width=10,
+                command=submit
+            )
+            submit_button.grid(row=7,column=0, pady=5)
 
         def find_file():
-            namefiles=[]
-            pw = ""
-            listfile =  open_vol(volume.get(), pw)
-            for i in listfile:
-                full = i[0] + '.' + i[1]
-                namefiles.append(full)
-            var = tk.Variable(value=namefiles)
+            pw = pass_entry.get().strip()
+            vol = volume.get()
+            check = hash_password(pw, int(salt_len))
+            isPass = b'\x00'
+            with open(vol, 'rb') as fileVol:
+                fileVol.seek(20)
+                isPass = fileVol.read(1)
+                fileVol.seek(21)
+                passhase = fileVol.read(len(check))
+                pass_hashed = passhase[:len(check)].decode()
 
-            listbox = tk.Listbox(
-                user_frame,
-                listvariable=var,
-                height=6,
-                selectmode=tk.EXTENDED
-            )
-            listbox.pack(expand=True, fill=tk.BOTH, side=tk.TOP)
-            listbox.grid(row=3, column=0, pady=5)
-            user_frame.pack(side='left')
-            type_label.grid(row=5, column=0, pady=5)
-            type_entry.grid(row=6, column=0, pady=5)
-            submit_button.grid(row=7,column=0, pady=5)
-            
-        find_file_button = tk.Button(
-            user_frame,
-            text='Danh sách các file',
-            width=20,
-            command=find_file
-        )
-        type_label = tk.Label(
-            user_frame,
-            text='Nhập tên file cần chép:',
-            font=('Verdana',8)
-        )
-        type_entry = tk.Entry(
-            user_frame,
-            width=25,
-            font=('Verdana',8)
-        )
-        def submit():
-            name = type_entry.get().strip()
-            if export_file_out(volume.get(), name, destination.get()):
-                messagebox.showinfo(title='CHÚC MỪNG', message='Chép file ra ngoài thành công')
-            else: messagebox.showerror(title='LỖI', message='Chép file ra ngoài không thành công')
-        submit_button = tk.Button(
-            user_frame,
-            text='Chép',
-            width=10,
-            command=submit
-        )
+            if ((isPass != b'\x00' and validate_password(pw, pass_hashed, int(salt_len))) or isPass == b'\x00'):   
+                        namefiles=[]
+                        listfile =  open_vol(volume.get())
+                        for i in listfile:
+                            full = i[0] + '.' + i[1]
+                            namefiles.append(full)
+                        var = tk.Variable(value=namefiles)
 
-        find_file_button.grid(row=4,column=0, pady=5)
+                        listbox = tk.Listbox(
+                            volume_frame,
+                            listvariable=var,
+                            height=6,
+                            selectmode=tk.EXTENDED
+                        )
+                        showright()
+                        find_file_button.grid_remove()
+                        pass_label.grid_remove()
+                        pass_entry.grid_remove()
+                        listbox.pack(expand=True, fill=tk.BOTH, side=tk.TOP)
+                        listbox.grid(row=3, column=0, pady=5)
+
+            if (isPass != b'\x00' and validate_password(pw, pass_hashed, int(salt_len)) == False):
+                        messagebox.showerror(title='LỖI', message='Mật khẩu sai!')
+
+        find_file_button['command']=find_file
 
     def delete_file():
         user_dir = 'data/' 
@@ -757,7 +890,13 @@ def page(mainframe: tk.Frame):
             width=170,
             height=290
         )
-
+        user_frame = tk.Frame(
+                user_page_content_frame_right,
+                name='user_pick_frame',
+                bg='white',
+                width=190,
+                height=290
+            )
         volume_frame.pack(side='left', fill='both')
         volume_frame.grid_propagate(False)
 
@@ -787,85 +926,97 @@ def page(mainframe: tk.Frame):
             anchor='w'
         )
 
+        pass_label = tk.Label(
+            volume_frame,
+            text='Nhập mật khẩu:',
+            font=('Verdana',8)
+        )
+        pass_entry = tk.Entry(
+            volume_frame,
+            width=10,
+            font=('Verdana',8), show='*'
+        )
+        find_file_button = tk.Button(
+                volume_frame,
+                text='Danh sách các file',
+                width=20
+            )
+
         volume_choose_label.grid(row=0, column=0, pady=5, sticky='w')
         volume_choose_button.grid(row=1, column=0, pady=5, sticky='w')
         volume_display.grid(row=2, column=0, columnspan=1, pady=5, sticky='w')
-        
-        user_frame = tk.Frame(
-            user_page_content_frame_right,
-            name='user_pick_frame',
-            bg='white',
-            width=190,
-            height=290
-        )
+        pass_label.grid(row=3, column=0, pady=5, sticky='w')
+        pass_entry.grid(row=4, column=0, pady=5, sticky='w')
+        find_file_button.grid(row=5,column=0, pady=5)
 
-        user_frame.pack(side='left')
-        user_frame.grid_propagate(False)
-
-        def find_file():
-            namefiles=[]
-            pw = ""
-            listfile =  open_vol(volume.get(), pw)
-            for i in listfile:
-                full = i[0] + '.' + i[1]
-                namefiles.append(full)
-            var = tk.Variable(value=namefiles)
-
-            listbox = tk.Listbox(
-                user_frame,
-                listvariable=var,
-                height=6,
-                selectmode=tk.EXTENDED
-            )
-            listbox.pack(expand=True, fill=tk.BOTH, side=tk.TOP)
-            listbox.grid(row=3, column=0, pady=5)
+        def showright():
             user_frame.pack(side='left')
-            type_label.grid(row=5, column=0, pady=5)
-            type_entry.grid(row=6, column=0, pady=5)
-            submit1_button.grid(row=7,column=0, pady=5)
-            submit2_button.grid(row=8,column=0, pady=5)
+            user_frame.grid_propagate(False)
             
-        find_file_button = tk.Button(
-            user_frame,
-            text='Danh sách các file',
-            width=20,
-            command=find_file
-        )
-        type_label = tk.Label(
-            user_frame,
-            text='Nhập tên file cần xóa:',
-            font=('Verdana',8)
-        )
-        type_entry = tk.Entry(
-            user_frame,
-            width=25,
-            font=('Verdana',8)
-        )
-        def submit1():
-            name = type_entry.get().strip()
-            if delefile(volume.get(), name):
-                messagebox.showinfo(title='CHÚC MỪNG', message='Xóa file  thành công')
-            else: messagebox.showerror(title='LỖI', message='Xóa file  không thành công')
-        submit1_button = tk.Button(
-            user_frame,
-            text='Xóa',
-            width=10,
-            command=submit1
-        )
-        def submit2():
-            name = type_entry.get().strip()
-            if delefile4ever(volume.get(), name):
-                messagebox.showinfo(title='CHÚC MỪNG', message='Xóa file thành công')
-            else: messagebox.showerror(title='LỖI', message='CXóa file không thành công')
-        submit2_button = tk.Button(
-            user_frame,
-            text='Xóa - không khôi phục',
-            width=20,
-            command=submit2
-        )
+            type_label = tk.Label(
+                user_frame,
+                text='Nhập tên file cần xóa:',
+                font=('Verdana',8)
+            )
+            type_entry = tk.Entry(
+                user_frame,
+                width=25,
+                font=('Verdana',8)
+            )
 
-        find_file_button.grid(row=2,column=0, pady=5)
-    
+            def submit():
+                name = type_entry.get().strip()
+                if delefile(volume.get(), name):
+                    messagebox.showinfo(title='CHÚC MỪNG', message='Xóa file thành công')
+                else: messagebox.showerror(title='LỖI', message='Xóa file  không thành công')
+            submit_button = tk.Button(
+                user_frame,
+                text='Xóa',
+                width=10,
+                command=submit
+            )
+            type_label.grid(row=0,column=0, pady=5)
+            type_entry.grid(row=1,column=0, pady=5)
+            submit_button.grid(row=2,column=0, pady=5)
+        
+        def find_file():
+            pw = pass_entry.get().strip()
+            vol = volume.get()
+            check = hash_password(pw, int(salt_len))
+            isPass = b'\x00'
+            with open(vol, 'rb') as fileVol:
+                fileVol.seek(20)
+                isPass = fileVol.read(1)
+                fileVol.seek(21)
+                passhase = fileVol.read(len(check))
+                pass_hashed = passhase[:len(check)].decode()
+
+            if ((isPass != b'\x00' and validate_password(pw, pass_hashed, int(salt_len))) or isPass == b'\x00'):   
+                        namefiles=[]
+                        listfile =  open_vol(volume.get())
+                        for i in listfile:
+                            full = i[0] + '.' + i[1]
+                            namefiles.append(full)
+                        var = tk.Variable(value=namefiles)
+
+                        listbox = tk.Listbox(
+                            volume_frame,
+                            listvariable=var,
+                            height=6,
+                            selectmode=tk.EXTENDED
+                        )
+                        showright()
+                        find_file_button.grid_remove()
+                        pass_label.grid_remove()
+                        pass_entry.grid_remove()
+                        listbox.pack(expand=True, fill=tk.BOTH, side=tk.TOP)
+                        listbox.grid(row=3, column=0, pady=5)
+
+            if (isPass != b'\x00' and validate_password(pw, pass_hashed, int(salt_len)) == False):
+                        messagebox.showerror(title='LỖI', message='Mật khẩu sai!')
+
+        find_file_button['command']=find_file    
+        
     def pass_file():
         user_dir = 'data/' 
 
@@ -926,7 +1077,7 @@ def page(mainframe: tk.Frame):
         def find_file():
             namefiles=[]
             pw = ""
-            listfile =  open_vol(volume.get(), pw)
+            listfile =  open_vol(volume.get())
             for i in listfile:
                 full = i[0] + '.' + i[1]
                 namefiles.append(full)
@@ -943,7 +1094,7 @@ def page(mainframe: tk.Frame):
             user_frame.pack(side='left')
             type_label.grid(row=5, column=0, pady=5)
             type_entry.grid(row=6, column=0, pady=5)
-            submit1_button.grid(row=7,column=0, pady=5)
+            submit1_button.grid(row=9,column=0, pady=5)
             
         find_file_button = tk.Button(
             user_frame,
@@ -977,7 +1128,6 @@ def page(mainframe: tk.Frame):
 
         find_file_button.grid(row=2,column=0, pady=5)
 
-
     def about():
         mess = '''
         ĐỒ ÁN GIỮA KỲ - An toàn và phục hồi dữ liệu - 20_22
@@ -989,7 +1139,7 @@ def page(mainframe: tk.Frame):
         GIẢNG VIÊN HƯỚNG DẪN:
         Thầy Thái Hùng Văn - thvan@fit.hcmus.edu.vn
         '''
-        messagebox.showinfo(title='About app', message=mess)
+        messagebox.showinfo(title='Thông tin đồ án', message=mess)
 
     create_vol_button['command']=create_volume
     format_vol_button['command']=format_volume

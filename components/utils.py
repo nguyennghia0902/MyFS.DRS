@@ -87,7 +87,7 @@ def format_vol(vol, name):
 
 def setpass_vol(vol, oldpw, newpw):
     check = hash_password(oldpw, int(salt_len))
-    isPass = 0
+    isPass = b'\x00'
     with open(vol, 'rb') as fileVol:
         default_data = fileVol.read()
         fileVol.seek(20)
@@ -121,13 +121,12 @@ def setpass_vol(vol, oldpw, newpw):
     
     return True   
 
-def open_vol(vol, pw):
+def open_vol(vol):
     listfile = []
     with open(vol, 'rb') as fileVol:
         fileVol.seek(101)
         n = 0
         n = int.from_bytes(fileVol.read(1),byteorder='big')
-        print('Số lượng file: ',n)
         for i in range(n):
             file = []
             filename = fileVol.read(8)
@@ -141,18 +140,17 @@ def open_vol(vol, pw):
             file.append(filesize)
             idfile = int.from_bytes(fileVol.read(4),byteorder='big')
             file.append(idfile)
-            print(file)
             listfile.append(file) 
 
     return listfile   
 
-def import_file_in(vol, pw, file):
+def import_file_in(vol, file):
     with open(file, 'rb') as f:
         name = str(file).split('/')
         name = name[-1]
         content = f.read()
         size =  f.tell()
-    list = open_vol(vol, "")
+    list = open_vol(vol)
     with open(vol, 'rb') as fileVol:
         fileVol.seek(0)
         default_data = fileVol.read() 
@@ -164,7 +162,7 @@ def import_file_in(vol, pw, file):
         idlast = last[3]
     else:     
         sizelast = 0
-        idlast = int(volsize*0.5/4)
+        idlast = int(volsize/8)
     
     with open(vol, 'wb') as fileVol:
         fileVol.seek(0)
@@ -188,7 +186,7 @@ def import_file_in(vol, pw, file):
         size_in_byte = size.to_bytes(4, byteorder='big')
         fileVol.write(size_in_byte)
 
-        id = idlast + (81+sizelast)*len(list)
+        id = idlast + (81+sizelast)#*len(list)
         fileVol.seek(117+19*len(list))
         id_in_byte = id.to_bytes(4, byteorder='big')
         fileVol.write(id_in_byte)
@@ -200,7 +198,7 @@ def import_file_in(vol, pw, file):
 
 
 def export_file_out(vol, name, des):
-    list = open_vol(vol, "")
+    list = open_vol(vol)
     file = ''
     for i in list:
         filename = '.'.join(i[:2])
@@ -213,7 +211,10 @@ def export_file_out(vol, name, des):
         messagebox.showerror(title='LỖI', message='Không tìm thấy file đã nhập tên')
         return False
     else:
+        #Giải mã file nếu file có cài mật khẩu
         with open(vol, 'rb') as fileVol:
+            fileVol.seek(id)
+            isPass = fileVol.read(1)
             fileVol.seek(id+81)
             content = fileVol.read(size)
         desfile = des + '/' + file
@@ -221,10 +222,57 @@ def export_file_out(vol, name, des):
             desfi.write(content)    
     return True
 
-def delefile(volume, name):
-    return True
+def getVolsize(volume):
+    with open(volume, 'rb') as fileVol:
+        fileVol.read()
+        return fileVol.tell()
 
-def delefile4ever(volume, name):
+def delefile(volume, name):
+    list = open_vol(volume)
+    file = ''
+    vt = 0
+    for i in list:
+        filename = '.'.join(i[:2])
+        if filename == name:
+            file = i[0] + '.' + i[1]
+            size = i[2]
+            id = i[3]
+            break
+        vt = vt + 1
+    if file == '':
+        messagebox.showerror(title='LỖI', message='Không tìm thấy file đã nhập tên')
+        return False
+    else:
+        with open(volume, 'rb') as fileVol:
+            default_data = fileVol.read()
+            if (vt < len(list)-1):
+                fileVol.seek(121+vt*19) 
+                data1 = fileVol.read(19*(len(list)-vt+1))
+                
+                fileVol.seek(id + size + 81) 
+                data2 = fileVol.read()
+        with open(volume, 'wb') as fileVol:
+            fileVol.write(default_data)
+            fileVol.seek(id)    
+            fileVol.write(b'\0' * (size+81))
+            fileVol.seek(102+vt*19) 
+            fileVol.write(b'\0' * (19))
+            if (vt < len(list)-1):
+                fileVol.seek(id)  
+                fileVol.write(data2)
+                fileVol.seek(102+vt*19)
+                fileVol.write(data1)
+                newlist = list[vt+1:len(list)]
+                newid = id
+                for i in newlist:
+                    fileVol.seek(117+vt*19) 
+                    vt=vt+1
+                    fileVol.write(newid.to_bytes(4, byteorder='big'))
+                    newid = newid + i[2] + 81
+            n = len(list)-1
+            fileVol.seek(101) 
+            fileVol.write(n.to_bytes(1, byteorder='big'))
+                
     return True
 
 def passfile(volume, namefile, oldpw, newpw):
