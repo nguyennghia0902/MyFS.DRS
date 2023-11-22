@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import font
 import tkinter.ttk as TTK
 from tkinter import messagebox, filedialog
 
@@ -6,13 +7,13 @@ from components.utils import *
 
 window_height = 400
 window_width = 600
-
+#'bold' = font.Font(weight="'bold'")
 last_clicked = None
 def change_color(button):
         global last_clicked
         if last_clicked:
             last_clicked.config(bg="red")
-        button.config(bg="blue")
+        button.config(bg="yellow")
         last_clicked = button
 
 def page(mainframe: tk.Frame):
@@ -105,6 +106,7 @@ def page(mainframe: tk.Frame):
         command=lambda: change_color(about_button)
     )
     
+
     user_page_content_frame_left.pack(fill='both',side = 'left', padx=20, pady=10)
 
     func_label.grid(row=0, column=0, columnspan=3)
@@ -148,7 +150,8 @@ def page(mainframe: tk.Frame):
 
         address_frame.pack(side='left', fill='both')
         address_frame.grid_propagate(False)
-
+        
+        
         address_choose_label = tk.Label(
             address_frame,
             text='Chọn vị trí: ',
@@ -175,9 +178,16 @@ def page(mainframe: tk.Frame):
             anchor='w'
         )
 
-        address_choose_label.grid(row=0, column=0, pady=5, sticky='w')
-        file_choose_button.grid(row=1, column=0, pady=5, sticky='w')
-        address_display.grid(row=2, column=0, columnspan=1, pady=5, sticky='w')
+        name_function_label = tk.Label(
+            address_frame,
+            text='TẠO VOLUME',
+            font=('Verdana',8, 'bold'),
+            bg='yellow'
+        )
+        name_function_label.grid(row=0, column=0, pady=5, sticky='w')
+        address_choose_label.grid(row=1, column=0, pady=5, sticky='w')
+        file_choose_button.grid(row=2, column=0, pady=5, sticky='w')
+        address_display.grid(row=3, column=0, columnspan=1, pady=5, sticky='w')
 
         user_frame = tk.Frame(
             user_page_content_frame_right,
@@ -302,13 +312,19 @@ def page(mainframe: tk.Frame):
             text='Kiểm tra',
             anchor='w'
         )
-        
-        volume_choose_label.grid(row=0, column=0, pady=5, sticky='w')
-        file_choose_button.grid(row=1, column=0, pady=5, sticky='w')
-        volume_display.grid(row=2, column=0, columnspan=1, pady=5, sticky='w')
-        pass_label.grid(row=3, column=0, pady=5, sticky='w')
-        pass_entry.grid(row=4, column=0, pady=5, sticky='w')
-        checkpass_button.grid(row=5, column=0, pady=5, sticky='w')
+        name_function_label = tk.Label(
+            volume_frame,
+            text='ĐỊNH DẠNG VOLUME',
+            font=('Verdana',8, 'bold'),
+            bg='yellow'
+        )
+        name_function_label.grid(row=0, column=0, pady=5, sticky='w')
+        volume_choose_label.grid(row=1, column=0, pady=5, sticky='w')
+        file_choose_button.grid(row=2, column=0, pady=5, sticky='w')
+        volume_display.grid(row=3, column=0, columnspan=1, pady=5, sticky='w')
+        pass_label.grid(row=4, column=0, pady=5, sticky='w')
+        pass_entry.grid(row=5, column=0, pady=5, sticky='w')
+        checkpass_button.grid(row=6, column=0, pady=5, sticky='w')
         
         def showright():
             user_frame.pack(side='left')
@@ -406,9 +422,16 @@ def page(mainframe: tk.Frame):
             anchor='w'
         )
 
-        volume_choose_label.grid(row=0, column=0, pady=5, sticky='w')
-        file_choose_button.grid(row=1, column=0, pady=5, sticky='w')
-        volume_display.grid(row=2, column=0, columnspan=1, pady=5, sticky='w')
+        name_function_label = tk.Label(
+            volume_frame,
+            text='ĐẶT MẬT KHẨU VOLUME',
+            font=('Verdana',8, 'bold'),
+            bg='yellow'
+        )
+        name_function_label.grid(row=0, column=0, pady=5, sticky='w')
+        volume_choose_label.grid(row=1, column=0, pady=5, sticky='w')
+        file_choose_button.grid(row=2, column=0, pady=5, sticky='w')
+        volume_display.grid(row=3, column=0, columnspan=1, pady=5, sticky='w')
 
         user_frame = tk.Frame(
             user_page_content_frame_right,
@@ -505,10 +528,17 @@ def page(mainframe: tk.Frame):
             command=get_volume,
             anchor='w'
         )
-
-        volume_choose_label.grid(row=0, column=0, pady=5, sticky='w')
-        volume_choose_button.grid(row=1, column=0, pady=5, sticky='w')
-        volume_display.grid(row=2, column=0, columnspan=1, pady=5, sticky='w')
+        
+        name_function_label = tk.Label(
+            volume_frame,
+            text='MỞ VÀ XEM VOLUME',
+            font=('Verdana',8, 'bold'),
+            bg='yellow'
+        )
+        name_function_label.grid(row=0, column=0, pady=5, sticky='w')
+        volume_choose_label.grid(row=1, column=0, pady=5, sticky='w')
+        volume_choose_button.grid(row=2, column=0, pady=5, sticky='w')
+        volume_display.grid(row=3, column=0, columnspan=1, pady=5, sticky='w')
 
         user_frame = tk.Frame(
             user_page_content_frame_right,
@@ -628,12 +658,19 @@ def page(mainframe: tk.Frame):
             anchor='w'
         )
 
-        volume_choose_label.grid(row=0, column=0, pady=5, sticky='w')
-        volume_choose_button.grid(row=1, column=0, pady=5, sticky='w')
-        volume_display.grid(row=2, column=0, columnspan=1, pady=5, sticky='w')
-        pass_label.grid(row=3, column=0, pady=5, sticky='w')
-        pass_entry.grid(row=4, column=0, pady=5, sticky='w')
-        checkpass_button.grid(row=5, column=0, pady=5, sticky='w')
+        name_function_label = tk.Label(
+            volume_frame,
+            text='CHÉP FILE VÀO VOLUME',
+            font=('Verdana',8, 'bold'),
+            bg='yellow'
+        )
+        name_function_label.grid(row=0, column=0, pady=5, sticky='w')
+        volume_choose_label.grid(row=1, column=0, pady=5, sticky='w')
+        volume_choose_button.grid(row=2, column=0, pady=5, sticky='w')
+        volume_display.grid(row=3, column=0, columnspan=1, pady=5, sticky='w')
+        pass_label.grid(row=4, column=0, pady=5, sticky='w')
+        pass_entry.grid(row=5, column=0, pady=5, sticky='w')
+        checkpass_button.grid(row=6, column=0, pady=5, sticky='w')
         
         def showright():
             user_frame = tk.Frame(
@@ -772,13 +809,19 @@ def page(mainframe: tk.Frame):
                 text='Danh sách các file',
                 width=20
             )
-
-        volume_choose_label.grid(row=0, column=0, pady=5, sticky='w')
-        volume_choose_button.grid(row=1, column=0, pady=5, sticky='w')
-        volume_display.grid(row=2, column=0, columnspan=1, pady=5, sticky='w')
-        pass_label.grid(row=3, column=0, pady=5, sticky='w')
-        pass_entry.grid(row=4, column=0, pady=5, sticky='w')
-        find_file_button.grid(row=5,column=0, pady=5)
+        name_function_label = tk.Label(
+            volume_frame,
+            text='CHÉP FILE RA VOLUME',
+            font=('Verdana',8, 'bold'),
+            bg='yellow'
+        )
+        name_function_label.grid(row=0, column=0, pady=5, sticky='w')
+        volume_choose_label.grid(row=1, column=0, pady=5, sticky='w')
+        volume_choose_button.grid(row=2, column=0, pady=5, sticky='w')
+        volume_display.grid(row=3, column=0, columnspan=1, pady=5, sticky='w')
+        pass_label.grid(row=4, column=0, pady=5, sticky='w')
+        pass_entry.grid(row=5, column=0, pady=5, sticky='w')
+        find_file_button.grid(row=6,column=0, pady=5)
         
         def showright():
             user_frame.pack(side='left')
@@ -942,12 +985,19 @@ def page(mainframe: tk.Frame):
                 width=20
             )
 
-        volume_choose_label.grid(row=0, column=0, pady=5, sticky='w')
-        volume_choose_button.grid(row=1, column=0, pady=5, sticky='w')
-        volume_display.grid(row=2, column=0, columnspan=1, pady=5, sticky='w')
-        pass_label.grid(row=3, column=0, pady=5, sticky='w')
-        pass_entry.grid(row=4, column=0, pady=5, sticky='w')
-        find_file_button.grid(row=5,column=0, pady=5)
+        name_function_label = tk.Label(
+            volume_frame,
+            text='XÓA FILE TRONG VOLUME',
+            font=('Verdana',8, 'bold'),
+            bg='yellow'
+        )
+        name_function_label.grid(row=0, column=0, pady=5, sticky='w')
+        volume_choose_label.grid(row=1, column=0, pady=5, sticky='w')
+        volume_choose_button.grid(row=2, column=0, pady=5, sticky='w')
+        volume_display.grid(row=3, column=0, columnspan=1, pady=5, sticky='w')
+        pass_label.grid(row=4, column=0, pady=5, sticky='w')
+        pass_entry.grid(row=5, column=0, pady=5, sticky='w')
+        find_file_button.grid(row=6,column=0, pady=5)
 
         def showright():
             user_frame.pack(side='left')
@@ -1059,9 +1109,16 @@ def page(mainframe: tk.Frame):
             anchor='w'
         )
 
-        volume_choose_label.grid(row=0, column=0, pady=5, sticky='w')
-        volume_choose_button.grid(row=1, column=0, pady=5, sticky='w')
-        volume_display.grid(row=2, column=0, columnspan=1, pady=5, sticky='w')
+        name_function_label = tk.Label(
+            volume_frame,
+            text='ĐẶT MẬT KHẨU FILE TRONG VOLUME',
+            font=('Verdana',8, 'bold'),
+            bg='yellow'
+        )
+        name_function_label.grid(row=0, column=0, pady=5, sticky='w')
+        volume_choose_label.grid(row=1, column=0, pady=5, sticky='w')
+        volume_choose_button.grid(row=2, column=0, pady=5, sticky='w')
+        volume_display.grid(row=3, column=0, columnspan=1, pady=5, sticky='w')
         
         user_frame = tk.Frame(
             user_page_content_frame_right,
