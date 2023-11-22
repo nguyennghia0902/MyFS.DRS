@@ -200,6 +200,32 @@ def import_file_in(vol, pw, file):
 
 
 def export_file_out(vol, name, des):
-    
+    list = open_vol(vol, "")
+    file = ''
+    for i in list:
+        filename = '.'.join(i[:2])
+        if filename == name:
+            file = i[0] + '.' + i[1]
+            size = i[2]
+            id = i[3]
+            break
+    if file == '':
+        messagebox.showerror(title='LỖI', message='Không tìm thấy file đã nhập tên')
+        return False
+    else:
+        with open(vol, 'rb') as fileVol:
+            fileVol.seek(id+81)
+            content = fileVol.read(size)
+        desfile = des + '/' + file
+        with open(desfile, 'wb') as desfi:
+            desfi.write(content)    
+    return True
 
+def delefile(volume, name):
+    return True
+
+def delefile4ever(volume, name):
+    return True
+
+def passfile(volume, namefile, oldpw, newpw):
     return True

@@ -74,8 +74,22 @@ def page(mainframe: tk.Frame):
         text='Chép file ra ngoài',
         width=25
     )
+    passfile_button = tk.Button(
+        user_page_content_frame_left,
+        text='Đặt/đổi mật khẩu file',
+        width=25
+    )
+    delefile_button = tk.Button(
+        user_page_content_frame_left,
+        text='Xóa file trong volume',
+        width=25
+    )
+    about_button = tk.Button(
+        user_page_content_frame_left,
+        text='About app',
+        width=25
+    )
     
-
     user_page_content_frame_left.pack(fill='both',side = 'left', padx=20, pady=10)
 
     func_label.grid(row=0, column=0, columnspan=3)
@@ -85,9 +99,10 @@ def page(mainframe: tk.Frame):
     open_vol_button.grid(row=4, column=0, pady=5)
     import_button.grid(row=5, column=0, pady=5)
     export_button.grid(row=6, column=0, pady=5)
+    passfile_button.grid(row=7, column=0, pady=5)
+    delefile_button.grid(row=8, column=0, pady=5)
+    about_button.grid(row=9, column=0, pady=5)
     
-    
-
     # Content panel
     user_page_content_frame_right = tk.Frame(
         user_page_frame,
@@ -102,8 +117,6 @@ def page(mainframe: tk.Frame):
     user_page_content_frame_right.grid_propagate(False)
     user_page_content_frame_right.pack_propagate(False)
     
-
-
     def create_volume():
 
         user_dir = 'data/' 
@@ -700,6 +713,7 @@ def page(mainframe: tk.Frame):
             user_frame.pack(side='left')
             type_label.grid(row=5, column=0, pady=5)
             type_entry.grid(row=6, column=0, pady=5)
+            submit_button.grid(row=7,column=0, pady=5)
             
         find_file_button = tk.Button(
             user_frame,
@@ -730,13 +744,259 @@ def page(mainframe: tk.Frame):
         )
 
         find_file_button.grid(row=4,column=0, pady=5)
-        #submit_button.grid(row=5,column=0, pady=5)
 
+    def delete_file():
+        user_dir = 'data/' 
+
+        forget_old_widgets(user_page_content_frame_right)
+
+        volume_frame = tk.Frame(
+            user_page_content_frame_right,
+            name='address_pick_frame',
+            bg='white',
+            width=170,
+            height=290
+        )
+
+        volume_frame.pack(side='left', fill='both')
+        volume_frame.grid_propagate(False)
+
+        volume_choose_label = tk.Label(
+            volume_frame,
+            text='Chọn volume: ',
+            font=('Verdana',8),
+        )
+        volume_display = tk.Label(
+            volume_frame,
+            wraplength=150,
+            bg='white'
+        )
+        volume = tk.StringVar(volume_frame)
+        def get_volume():
+            get_volume = filedialog.askopenfilename(
+                title='Chọn volume',
+                initialdir=user_dir
+            )
+            volume.set(get_volume)
+            volume_display['textvariable']=volume
+
+        volume_choose_button = tk.Button(
+            volume_frame,
+            text='Chọn volume',
+            command=get_volume,
+            anchor='w'
+        )
+
+        volume_choose_label.grid(row=0, column=0, pady=5, sticky='w')
+        volume_choose_button.grid(row=1, column=0, pady=5, sticky='w')
+        volume_display.grid(row=2, column=0, columnspan=1, pady=5, sticky='w')
+        
+        user_frame = tk.Frame(
+            user_page_content_frame_right,
+            name='user_pick_frame',
+            bg='white',
+            width=190,
+            height=290
+        )
+
+        user_frame.pack(side='left')
+        user_frame.grid_propagate(False)
+
+        def find_file():
+            namefiles=[]
+            pw = ""
+            listfile =  open_vol(volume.get(), pw)
+            for i in listfile:
+                full = i[0] + '.' + i[1]
+                namefiles.append(full)
+            var = tk.Variable(value=namefiles)
+
+            listbox = tk.Listbox(
+                user_frame,
+                listvariable=var,
+                height=6,
+                selectmode=tk.EXTENDED
+            )
+            listbox.pack(expand=True, fill=tk.BOTH, side=tk.TOP)
+            listbox.grid(row=3, column=0, pady=5)
+            user_frame.pack(side='left')
+            type_label.grid(row=5, column=0, pady=5)
+            type_entry.grid(row=6, column=0, pady=5)
+            submit1_button.grid(row=7,column=0, pady=5)
+            submit2_button.grid(row=8,column=0, pady=5)
+            
+        find_file_button = tk.Button(
+            user_frame,
+            text='Danh sách các file',
+            width=20,
+            command=find_file
+        )
+        type_label = tk.Label(
+            user_frame,
+            text='Nhập tên file cần xóa:',
+            font=('Verdana',8)
+        )
+        type_entry = tk.Entry(
+            user_frame,
+            width=25,
+            font=('Verdana',8)
+        )
+        def submit1():
+            name = type_entry.get().strip()
+            if delefile(volume.get(), name):
+                messagebox.showinfo(title='CHÚC MỪNG', message='Xóa file  thành công')
+            else: messagebox.showerror(title='LỖI', message='Xóa file  không thành công')
+        submit1_button = tk.Button(
+            user_frame,
+            text='Xóa',
+            width=10,
+            command=submit1
+        )
+        def submit2():
+            name = type_entry.get().strip()
+            if delefile4ever(volume.get(), name):
+                messagebox.showinfo(title='CHÚC MỪNG', message='Xóa file thành công')
+            else: messagebox.showerror(title='LỖI', message='CXóa file không thành công')
+        submit2_button = tk.Button(
+            user_frame,
+            text='Xóa - không khôi phục',
+            width=20,
+            command=submit2
+        )
+
+        find_file_button.grid(row=2,column=0, pady=5)
     
+    def pass_file():
+        user_dir = 'data/' 
+
+        forget_old_widgets(user_page_content_frame_right)
+
+        volume_frame = tk.Frame(
+            user_page_content_frame_right,
+            name='address_pick_frame',
+            bg='white',
+            width=170,
+            height=290
+        )
+
+        volume_frame.pack(side='left', fill='both')
+        volume_frame.grid_propagate(False)
+
+        volume_choose_label = tk.Label(
+            volume_frame,
+            text='Chọn volume: ',
+            font=('Verdana',8),
+        )
+        volume_display = tk.Label(
+            volume_frame,
+            wraplength=150,
+            bg='white'
+        )
+        volume = tk.StringVar(volume_frame)
+        def get_volume():
+            get_volume = filedialog.askopenfilename(
+                title='Chọn volume',
+                initialdir=user_dir
+            )
+            volume.set(get_volume)
+            volume_display['textvariable']=volume
+
+        volume_choose_button = tk.Button(
+            volume_frame,
+            text='Chọn volume',
+            command=get_volume,
+            anchor='w'
+        )
+
+        volume_choose_label.grid(row=0, column=0, pady=5, sticky='w')
+        volume_choose_button.grid(row=1, column=0, pady=5, sticky='w')
+        volume_display.grid(row=2, column=0, columnspan=1, pady=5, sticky='w')
+        
+        user_frame = tk.Frame(
+            user_page_content_frame_right,
+            name='user_pick_frame',
+            bg='white',
+            width=190,
+            height=290
+        )
+
+        user_frame.pack(side='left')
+        user_frame.grid_propagate(False)
+
+        def find_file():
+            namefiles=[]
+            pw = ""
+            listfile =  open_vol(volume.get(), pw)
+            for i in listfile:
+                full = i[0] + '.' + i[1]
+                namefiles.append(full)
+            var = tk.Variable(value=namefiles)
+
+            listbox = tk.Listbox(
+                user_frame,
+                listvariable=var,
+                height=6,
+                selectmode=tk.EXTENDED
+            )
+            listbox.pack(expand=True, fill=tk.BOTH, side=tk.TOP)
+            listbox.grid(row=3, column=0, pady=5)
+            user_frame.pack(side='left')
+            type_label.grid(row=5, column=0, pady=5)
+            type_entry.grid(row=6, column=0, pady=5)
+            submit1_button.grid(row=7,column=0, pady=5)
+            
+        find_file_button = tk.Button(
+            user_frame,
+            text='Danh sách các file',
+            width=20,
+            command=find_file
+        )
+        type_label = tk.Label(
+            user_frame,
+            text='Nhập tên file cần đặt mật khẩu:',
+            font=('Verdana',8)
+        )
+        type_entry = tk.Entry(
+            user_frame,
+            width=25,
+            font=('Verdana',8)
+        )
+        def submit1():
+            namefile = type_entry.get().strip()
+            oldpw = ''
+            newpw = ''
+            if passfile(volume.get(), namefile, oldpw, newpw):
+                messagebox.showinfo(title='CHÚC MỪNG', message='Đặt mật khẩu file  thành công')
+            else: messagebox.showerror(title='LỖI', message='Đặt mật khẩu file  không thành công')
+        submit1_button = tk.Button(
+            user_frame,
+            text='Xác nhận',
+            width=10,
+            command=submit1
+        )
+
+        find_file_button.grid(row=2,column=0, pady=5)
+
+
+    def about():
+        mess = '''
+        ĐỒ ÁN GIỮA KỲ - An toàn và phục hồi dữ liệu - 20_22
+        
+        SINH VIÊN THỰC HIỆN:
+        1. Bùi Nguyên Nghĩa - 19120600@student.hcmus.edu.vn
+        2. Trà Như Khuyên - 20120130@student.hcmus.edu.vn
+        
+        GIẢNG VIÊN HƯỚNG DẪN:
+        Thầy Thái Hùng Văn - thvan@fit.hcmus.edu.vn
+        '''
+        messagebox.showinfo(title='About app', message=mess)
+
     create_vol_button['command']=create_volume
     format_vol_button['command']=format_volume
     open_vol_button['command']=open_volume
     pass_vol_button['command']=pass_volume
     import_button['command']=import_file
     export_button['command']=export_file
-    
+    delefile_button['command']=delete_file
+    about_button['command']=about
+    passfile_button['command']=pass_file

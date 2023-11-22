@@ -23,8 +23,6 @@ def main():
 
     mainframe = tk.Frame(root, name='mainframe', width=window_width, height=window_height)
 
-
-
     ### MAIN ###
 
     menu = login(mainframe)
