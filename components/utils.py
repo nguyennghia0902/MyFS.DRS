@@ -1,9 +1,7 @@
 import os
 import tkinter as tk
 from tkinter import messagebox
-from Crypto.Cipher import AES
-import hashlib, random, string
-
+import hashlib
 
 salt_len = 8
 def hash_password(password, salt_len):
@@ -25,15 +23,6 @@ def forget_old_widgets(frame: tk.Frame):
         for name, widget in list(frame.children.items()):
             if name != 'loginframe':
                 widget.destroy()
-
-def read_size_bs_bytes(size, data):
-    bs = AES.block_size
-    chunk_size = size * bs
-    offset = 0
-    while offset < len(data):
-        chunk = data[offset:offset + chunk_size]
-        offset += chunk_size
-        yield chunk
 
 def create_vol(address, name, size):
     file_path = address + "/" + name
@@ -196,9 +185,9 @@ def import_file_in(vol, file):
         
     return True
 
-
-def export_file_out(vol, name, des):
+def export_file_out(vol, name, passfile, des):
     list = open_vol(vol)
+    check = hash_password(passfile, int(salt_len))
     file = ''
     for i in list:
         filename = '.'.join(i[:2])
@@ -211,15 +200,21 @@ def export_file_out(vol, name, des):
         messagebox.showerror(title='LỖI', message='Không tìm thấy file đã nhập tên')
         return False
     else:
-        #Giải mã file nếu file có cài mật khẩu
         with open(vol, 'rb') as fileVol:
             fileVol.seek(id)
+            isPass = b'\x00'
             isPass = fileVol.read(1)
-            fileVol.seek(id+81)
-            content = fileVol.read(size)
-        desfile = des + '/' + file
-        with open(desfile, 'wb') as desfi:
-            desfi.write(content)    
+            passhase = fileVol.read(len(check))
+            pass_hashed = passhase[:len(check)].decode()
+            if ((isPass != b'\x00' and validate_password(passfile, pass_hashed, int(salt_len))) or isPass == b'\x00'): 
+                fileVol.seek(id+81)
+                content = fileVol.read(size)
+                desfile = des + '/' + file
+                with open(desfile, 'wb') as desfi:
+                    desfi.write(swap_cont(content))
+            if (isPass != b'\x00' and validate_password(passfile, pass_hashed, int(salt_len)) == False):
+                    messagebox.showerror(title='LỖI', message='Mật khẩu sai!')
+                    return False    
     return True
 
 def getVolsize(volume):
@@ -227,8 +222,9 @@ def getVolsize(volume):
         fileVol.read()
         return fileVol.tell()
 
-def delefile(volume, name):
+def delefile(volume, name, passfile):
     list = open_vol(volume)
+    check = hash_password(passfile, int(salt_len))
     file = ''
     vt = 0
     for i in list:
@@ -245,12 +241,20 @@ def delefile(volume, name):
     else:
         with open(volume, 'rb') as fileVol:
             default_data = fileVol.read()
-            if (vt < len(list)-1):
-                fileVol.seek(121+vt*19) 
-                data1 = fileVol.read(19*(len(list)-vt+1))
-                
-                fileVol.seek(id + size + 81) 
-                data2 = fileVol.read()
+            isPass = b'\x00'
+            fileVol.seek(id)
+            isPass = fileVol.read(1)
+            passhase = fileVol.read(len(check))
+            pass_hashed = passhase[:len(check)].decode()
+            if ((isPass != b'\x00' and validate_password(passfile, pass_hashed, int(salt_len))) or isPass == b'\x00'): 
+                if (vt < len(list)-1):
+                    fileVol.seek(121+vt*19) 
+                    data1 = fileVol.read(19*(len(list)-vt+1))
+                    fileVol.seek(id + size + 81) 
+                    data2 = fileVol.read()
+            if (isPass != b'\x00' and validate_password(passfile, pass_hashed, int(salt_len)) == False):
+                messagebox.showerror(title='LỖI', message='Mật khẩu sai!')
+                return False    
         with open(volume, 'wb') as fileVol:
             fileVol.write(default_data)
             fileVol.seek(id)    
@@ -271,9 +275,52 @@ def delefile(volume, name):
                     newid = newid + i[2] + 81
             n = len(list)-1
             fileVol.seek(101) 
-            fileVol.write(n.to_bytes(1, byteorder='big'))
-                
+            fileVol.write(n.to_bytes(1, byteorder='big'))    
     return True
 
-def passfile(volume, namefile, oldpw, newpw):
+def setpass_file(volume, name, oldpw, newpw):
+    list = open_vol(volume)
+    check = hash_password(oldpw, int(salt_len))
+    file = ''
+    vt = 0
+    for i in list:
+        filename = '.'.join(i[:2])
+        if filename == name:
+            file = i[0] + '.' + i[1]
+            size = i[2]
+            id = i[3]
+            break
+        vt = vt + 1
+    if file == '':
+        messagebox.showerror(title='LỖI', message='Không tìm thấy file đã nhập tên')
+        return False
+    else:
+        with open(volume, 'rb') as fileVol:
+                default_data = fileVol.read()
+                fileVol.seek(id) 
+                isPass = b'\x00'
+                isPass = fileVol.read(1)
+                passhase = fileVol.read(len(check))
+                pass_hashed = passhase[:len(check)].decode()
+                content = fileVol.read(size)
+                if ((isPass != b'\x00' and validate_password(oldpw, pass_hashed, int(salt_len))) or isPass == b'\x00'): 
+                    with open(volume, 'wb') as fileVolume:
+                        fileVolume.write(default_data)
+                        fileVolume.seek(id)    
+                        n = 1
+                        fileVolume.write(n.to_bytes(1, byteorder='big'))
+                        
+                        newpw_in_byte = bytes(hash_password(newpw, salt_len),'utf-8')
+                        fileVolume.write(newpw_in_byte)
+
+                        fileVolume.write(swap_cont(content))
+
+                if (isPass != b'\x00' and validate_password(oldpw, pass_hashed, int(salt_len)) == False):
+                        messagebox.showerror(title='LỖI', message='Mật khẩu sai!')
+                        return False
     return True
+
+def swap_cont(data):
+    data = bytearray(data)
+    data[0], data[1] = data[1], data[0]
+    return bytes(data)

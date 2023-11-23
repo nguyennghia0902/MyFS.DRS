@@ -1,9 +1,9 @@
 import tkinter as tk
+import random
 from components.page import *
 
 window_height = 400
 window_width = 600
-
 
 def decrypt_dynamic_password(s):
     offset = ord('A')
