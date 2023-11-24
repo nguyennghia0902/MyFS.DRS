@@ -25,7 +25,7 @@ pip install -r requirements.txt
 ```
 
 ## Usage
-Open MyFS.DRS folder.
-Type "cmd" in the address bar and press Enter.
-Type "python main.py" and press Enter.
-Test
+1. Open MyFS.DRS folder.
+2. Type "cmd" in the address bar and press Enter.
+3. Type "python main.py" and press Enter.
+4. Enjoy
