@@ -1,5 +1,4 @@
 import tkinter as tk
-from tkinter import font
 import tkinter.ttk as TTK
 from tkinter import messagebox, filedialog
 
@@ -121,7 +120,7 @@ def page(mainframe: tk.Frame):
         
         SINH VIÊN THỰC HIỆN:
         1. Bùi Nguyên Nghĩa - 19120600@student.hcmus.edu.vn
-        2. Trà Như Khuyên - 20120130@student.hcmus.edu.vn
+        2. Trà Như Khuyên - 20120310@student.hcmus.edu.vn
         
         GIẢNG VIÊN HƯỚNG DẪN:
         Thầy Thái Hùng Văn - thvan@fit.hcmus.edu.vn
@@ -150,7 +149,6 @@ def page(mainframe: tk.Frame):
 
         address_frame.pack(side='left', fill='both')
         address_frame.grid_propagate(False)
-        
         
         address_choose_label = tk.Label(
             address_frame,
@@ -184,6 +182,7 @@ def page(mainframe: tk.Frame):
             font=('Verdana',8, 'bold'),
             bg='yellow'
         )
+        
         name_function_label.grid(row=0, column=0, pady=5, sticky='w')
         address_choose_label.grid(row=1, column=0, pady=5, sticky='w')
         file_choose_button.grid(row=2, column=0, pady=5, sticky='w')
@@ -218,9 +217,8 @@ def page(mainframe: tk.Frame):
             font=('Verdana',8)
         )
         n = tk.StringVar()
-        size_menu = TTK.Combobox(user_frame, width = 27,  
-                            textvariable = n) 
-        size_menu['values'] = ('100', '500', '1000', '2000') 
+        size_menu = TTK.Combobox(user_frame, width = 27,  textvariable = n) 
+        size_menu['values'] = ('5', '10', '50','100', '500', '1000', '2000') 
         
         size_menu.grid(column = 1, row = 15) 
     
@@ -811,7 +809,7 @@ def page(mainframe: tk.Frame):
             )
         name_function_label = tk.Label(
             volume_frame,
-            text='CHÉP FILE RA VOLUME',
+            text='CHÉP FILE RA NGOÀI',
             font=('Verdana',8, 'bold'),
             bg='yellow'
         )

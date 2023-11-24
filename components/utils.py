@@ -29,48 +29,32 @@ def create_vol(address, name, size):
     size_bytes = size * 1024 * 1024 
     with open(file_path, 'wb') as fileVol:
         fileVol.seek(0)
-        address_in_byte = bytes(address, 'utf-8')
-        fileVol.write(address_in_byte)
-
-        fileVol.seek(8)
         size_in_byte = size_bytes.to_bytes(4, byteorder='big')
         fileVol.write(size_in_byte)
-
-        fileVol.seek(12)
+        fileVol.seek(4)
         name_in_byte = bytes(name, 'utf-8')
         fileVol.write(name_in_byte)
-
+        fileVol.seek(20)
         fileVol.write(b'\0' * (int(size_bytes)-20))
-
     return True  
 
 def format_vol(vol, name):
     with open(vol, 'rb') as fileVol:
         default_data = fileVol.read()
-        fileVol.seek(8)
+        fileVol.seek(0)
         size = int.from_bytes(fileVol.read(4),byteorder='big')
-        idbackup = int(size*2.5/4)
-        fileVol.seek(idbackup)
-        backup_content = fileVol.read()
     with open(vol, 'wb') as fileVol:
         fileVol.seek(0)
         fileVol.write(default_data) 
-        
-        fileVol.seek(12)
+        fileVol.seek(4)
         name_in_byte = bytes(name, 'utf-8')
         fileVol.write(name_in_byte)
-
         fileVol.write(b'\0' * (size-20))
-
-        fileVol.seek(idbackup)
-        fileVol.write(backup_content)
     
     filename = str(vol)
     elements = filename.split('/')
     addr = '/'.join(elements[:-1])
-
     name = addr + '/' + name
-
     os.rename(filename, name)
     return True  
 
@@ -90,6 +74,9 @@ def setpass_vol(vol, oldpw, newpw):
             if validate_password(oldpw, pass_hashed, int(salt_len)):
                 fileVol.seek(0)
                 fileVol.write(default_data)
+                fileVol.seek(20)
+                c = 1
+                fileVol.write(c.to_bytes(c, byteorder='big'))
                 newpw_in_byte = bytes(hash_password(newpw, salt_len),'utf-8')
                 fileVol.seek(21)
                 fileVol.write(newpw_in_byte)
@@ -141,9 +128,8 @@ def import_file_in(vol, file):
         size =  f.tell()
     list = open_vol(vol)
     with open(vol, 'rb') as fileVol:
-        fileVol.seek(0)
         default_data = fileVol.read() 
-        fileVol.seek(8)
+        fileVol.seek(0)
         volsize = int.from_bytes(fileVol.read(4),byteorder='big')
     if len(list) != 0:
         last = list[-1]
@@ -151,7 +137,7 @@ def import_file_in(vol, file):
         idlast = last[3]
     else:     
         sizelast = 0
-        idlast = int(volsize/8)
+        idlast = int(volsize/16)
     
     with open(vol, 'wb') as fileVol:
         fileVol.seek(0)
@@ -206,12 +192,16 @@ def export_file_out(vol, name, passfile, des):
             isPass = fileVol.read(1)
             passhase = fileVol.read(len(check))
             pass_hashed = passhase[:len(check)].decode()
-            if ((isPass != b'\x00' and validate_password(passfile, pass_hashed, int(salt_len))) or isPass == b'\x00'): 
+            if ((isPass != b'\x00' and validate_password(passfile, pass_hashed, int(salt_len))) 
+                or isPass == b'\x00'): 
                 fileVol.seek(id+81)
                 content = fileVol.read(size)
                 desfile = des + '/' + file
                 with open(desfile, 'wb') as desfi:
-                    desfi.write(swap_cont(content))
+                    if isPass == b'\x00':
+                        desfi.write(content)
+                    else:
+                        desfi.write(swap_cont(content))
             if (isPass != b'\x00' and validate_password(passfile, pass_hashed, int(salt_len)) == False):
                     messagebox.showerror(title='LỖI', message='Mật khẩu sai!')
                     return False    
